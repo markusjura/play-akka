@@ -5,13 +5,20 @@ import play.api.libs.json.JsValue
 import play.api.mvc._
 import actors._
 import play.api.Play.current
+import actors._
 
 object Application extends Controller {
 
-  // TODO: Render index page
   def index = Action { implicit request =>
-    NotImplemented
+    Ok(views.html.index())
   }
 
-  // TODO: Create WebSocket connection to push new stock prices to the client
+  /**
+   * Establishing a WebSocket connection with an actor
+   * Input type: JsValue
+   * Output type (out): JsValue
+   */
+  def ws = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
+    User.props(out)
+  }
 }
