@@ -1,11 +1,11 @@
-package actors
+package assets.actors
 
 import akka.actor._
 import utils.StockQuote
 import scala.util.Random
 import scala.collection.immutable.Queue
 import scala.concurrent.duration._
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.Play.current
 
 object Stock {
@@ -20,10 +20,6 @@ object Stock {
   case object Unwatch extends Message
 }
 
-/**
- * There is one Stock actor per stock symbol. The Stock actor maintains a list of users watching the stock and the stock
- * values. Each Stock actour updates a rolling dataset of randomly generated stock values.
- */
 class Stock(symbol: String) extends Actor {
   import Stock._
 
@@ -41,7 +37,8 @@ class Stock(symbol: String) extends Actor {
   def receive = {
     case FetchLatest =>
       // Add a new stock price to the history and drop the oldest
-      val newPrice = updateStockHistory
+      val newPrice = StockQuote.newPrice(stockHistory.last)
+      stockHistory = stockHistory.drop(1) :+ newPrice
       // Notify watchers
       watchers.foreach(_ ! Stock.Update(symbol, newPrice))
 
@@ -55,7 +52,7 @@ class Stock(symbol: String) extends Actor {
       watchers = watchers - sender
       if (watchers.size == 0) {
         stockTick.cancel
-        context.stop(self)
+        context stop self
       }
   }
 

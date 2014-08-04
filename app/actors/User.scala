@@ -41,4 +41,12 @@ class User(out: ActorRef) extends Actor {
         "history" -> history)
       out ! message
   }
+
+  // When the WebSocket connection closes the actor is being stopped
+  // The user is unwatching all stocks
+  override def postStop() = {
+    StocksDelegator.ref.tell(Stock.Unwatch, self)
+    Logger.debug(s"User ${self.path} has left")
+    context.stop(self)
+  }
 }
