@@ -21,9 +21,11 @@ class User(out: ActorRef) extends Actor {
   defaultStocks.foreach(symbol => StocksDelegator.ref ! Stock.Watch(symbol))
 
   def receive = {
-    case message: JsValue =>
-      Logger.debug(s"New WebSocket message: $message")
-      out ! Json.obj("msg" -> message)
+    case msg: JsValue =>
+      // Parse the symbol from JSON
+      val symbol = (msg \ "symbol").as[String]
+      // Send the Watch message to the stocks actor
+      StocksDelegator.ref.tell(Stock.Watch(symbol), self)
 
     case Stock.Update(symbol, price) =>
       val message = Json.obj(
