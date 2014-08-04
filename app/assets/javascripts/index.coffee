@@ -1,5 +1,7 @@
 # TODO: Open WebSocket connection and display stock prices
 
+# TODO: Add new symbol
+
 getPricesFromArray = (data) ->
   (v[1] for v in data)
 

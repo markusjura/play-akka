@@ -3,7 +3,7 @@ package controllers
 import play.api._
 import play.api.libs.json.JsValue
 import play.api.mvc._
-//import actors._
+import actors._
 import play.api.Play.current
 
 object Application extends Controller {
